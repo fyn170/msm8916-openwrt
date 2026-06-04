@@ -16,7 +16,7 @@ on:
 
 env:
   UPLOAD_FIRMWARE: true
-  TZ: Europe/Madrid
+  TZ: Asia/Jakarta
 
 jobs:
   resolve-version:
@@ -71,7 +71,7 @@ jobs:
       run: |
         chmod +x apply_patches.sh
         ./apply_patches.sh openwrt
-        patch -d openwrt -p1 < TBR/enable_wcn36xx_mac80211.patch
+        patch --forward -p1 < TBR/enable_wcn36xx_mac80211.patch || true
         cp TBR/add-qcom-memshare.patch msm89xx/patches/
         mv msm89xx openwrt/target/linux/msm89xx
         mv packages openwrt/package/msm8916
