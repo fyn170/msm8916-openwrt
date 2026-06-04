@@ -64,7 +64,7 @@ jobs:
     - name: Clone OpenWrt source code
       run: |
         echo "Using OpenWrt ${{ needs.resolve-version.outputs.openwrt_version }}"
-        git clone https://git.openwrt.org/openwrt/openwrt.git openwrt
+        git clone https://github.com/openwrt/openwrt.git openwrt
         git -C openwrt checkout ${{ needs.resolve-version.outputs.openwrt_version }}
 
     - name: Load msm89xx target and packages
@@ -79,6 +79,8 @@ jobs:
     - name: Update and install feeds
       run: |
         cd openwrt
+        sed -i 's/https:\/\/git.openwrt.org\/feed/https:\/\/github.com\/openwrt/g' feeds.conf.default
+        sed -i 's/https:\/\/git.openwrt.org\/project/https:\/\/github.com\/openwrt/g' feeds.conf.default
         rm -rf tmp
         ./scripts/feeds update -a
         ./scripts/feeds install -a
