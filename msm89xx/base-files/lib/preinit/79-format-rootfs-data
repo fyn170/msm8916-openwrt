@@ -2,7 +2,7 @@
 # /lib/preinit/79-format-rootfs-data
 # Automatically format rootfs_data partition if empty
 
-ROOTFS_DATA="/dev/mmcblk0p15"
+ROOTFS_DATA="/dev/mmcblk0p25"
 
 has_valid_ext4() {
 	# Check for ext4 magic number (0xEF53) at offset 0x438
