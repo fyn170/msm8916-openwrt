@@ -54,7 +54,7 @@ define Device/samsung-j500g
   $(Device/msm8916)
   DEVICE_VENDOR := Samsung
   DEVICE_MODEL := Galaxy J5 (SM-J500G)
-  DEVICE_DTS := qcom/msm8916-samsung-j5
+  DEVICE_DTS := msm8916-samsung-j5
   FILESYSTEMS := squashfs
   DEVICE_PACKAGES := wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools \
