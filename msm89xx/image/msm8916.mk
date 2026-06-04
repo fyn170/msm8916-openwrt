@@ -55,6 +55,8 @@ define Device/samsung-j500g
   DEVICE_VENDOR := Samsung
   DEVICE_MODEL := Galaxy J5 (SM-J500G)
   DEVICE_DTS := msm8916-samsung-j5
+  CMDLINE := "earlycon console=tty0 console=ttyMSM0,115200 root=/dev/mmcblk0p28 rootfstype=squashfs rootwait"
+  ARTIFACTS := firmware.zip
   FILESYSTEMS := squashfs
   DEVICE_PACKAGES := wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools \
