@@ -3,18 +3,19 @@
 ifeq ($(SUBTARGET),msm8916)
 
 define Build/generate-squashfs-gpt
-  chmod +x $(TOPDIR)/target/linux/$(BOARD)/image/generate_squashfs_gpt.sh
-  $(TOPDIR)/target/linux/$(BOARD)/image/generate_squashfs_gpt.sh $@
+  chmod +x $(TOPDIR)/target/linux/$(BOARD)/image/generate_squashfs_gpt$(DEVICE_GPT_SUFFIX).sh
+  $(TOPDIR)/target/linux/$(BOARD)/image/generate_squashfs_gpt$(DEVICE_GPT_SUFFIX).sh $@
 endef
 
 define Build/install-flasher
-  $(CP) $(TOPDIR)/target/linux/$(BOARD)/image/flash.sh $@
+  chmod +x $(TOPDIR)/target/linux/$(BOARD)/image/flash$(DEVICE_FLASH_SUFFIX).sh
+  $(CP) $(TOPDIR)/target/linux/$(BOARD)/image/flash$(DEVICE_FLASH_SUFFIX).sh $@
   chmod +x $@
 endef
 
 define Build/generate-firmware
   chmod +x $(TOPDIR)/target/linux/$(BOARD)/image/generate_firmware.sh
-  $(TOPDIR)/target/linux/$(BOARD)/image/generate_firmware.sh $@
+  $(TOPDIR)/target/linux/$(BOARD)/image/generate_firmware.sh $@ "$(DEVICE_LK2ND_BUNDLE_DTB)" "$(DEVICE_LK2ND_COMPATIBLE)"
 endef
 
 define Device/msm8916
@@ -26,6 +27,8 @@ define Device/msm8916
   ARTIFACT/squashfs-gpt_both0.bin := generate-squashfs-gpt
   ARTIFACT/flash.sh := install-flasher
   ARTIFACT/firmware.zip := generate-firmware
+  DEVICE_GPT_SUFFIX :=
+  DEVICE_FLASH_SUFFIX :=
 endef
 
 define Device/yiming-uz801v3
@@ -55,8 +58,12 @@ define Device/samsung-j500g
   DEVICE_VENDOR := Samsung
   DEVICE_MODEL := Galaxy J5 (SM-J500G)
   DEVICE_DTS := msm8916-samsung-j5
+  DEVICE_LK2ND_BUNDLE_DTB := msm8916-samsung.dtb
+  DEVICE_LK2ND_COMPATIBLE := samsung,j5ltedx
+  DEVICE_GPT_SUFFIX := _j5
+  DEVICE_FLASH_SUFFIX := _j5
   CMDLINE := "earlycon console=tty0 console=ttyMSM0,115200 root=/dev/mmcblk0p28 rootfstype=squashfs rootwait"
-  ARTIFACTS := firmware.zip
+  ARTIFACTS := squashfs-gpt_both0.bin flash.sh firmware.zip
   FILESYSTEMS := squashfs
   DEVICE_PACKAGES := wpad-basic-wolfssl rmtfs uci-usb-gadget \
                      block-mount f2fs-tools \
