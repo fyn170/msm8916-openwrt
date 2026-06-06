@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8916-generic-uf02.dts
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,73 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
@@ -10,7 +10,7 @@
 +#include <dt-bindings/leds/common.h>
 +
 +/ {
-+	model = "UF02 4G Modem Stick";
++	model = "uf02 4g modem stick";
 +	compatible = "uf02,250605v0s", "qcom,msm8916";
 +};
 +
@@ -39,4 +39,34 @@
 +
 +&gpio_leds_default {
 +	pins = "gpio71", "gpio72", "gpio73";
++};
++
++&mpss {
++	pinctrl-0 = <&sim_ctrl_default>;
++	pinctrl-names = "default";
++};
++
++&tlmm {
++	sim_ctrl_default: sim-ctrl-default-state {
++		esim_sel_pins {
++			pins = "gpio0", "gpio3";
++			function = "gpio";
++			bias-disable;
++			output-low;
++		};
++
++		sim_en_pins {
++			pins = "gpio1";
++			function = "gpio";
++			bias-disable;
++			output-low;
++		};
++
++		sim_sel_pins {
++			pins = "gpio2";
++			function = "gpio";
++			bias-disable;
++			output-high;
++		};
++	};
 +};
