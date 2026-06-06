@@ -1,12 +1,13 @@
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8916-generic-uf02.dts
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,70 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
 +
 +#include "msm8916-ufi.dtsi"
 +
++#include <dt-bindings/gpio/gpio.h>
 +#include <dt-bindings/leds/common.h>
 +
 +/ {
@@ -39,4 +40,34 @@
 +
 +&gpio_leds_default {
 +	pins = "gpio71", "gpio72", "gpio73";
++};
++
++&tlmm {
++	sim_en_gpio: sim-en-gpio {
++		gpio-hog;
++		gpios = <1 GPIO_ACTIVE_HIGH>;
++		output-low;
++		line-name = "sim_en";
++	};
++
++	sim_sel_gpio: sim-sel-gpio {
++		gpio-hog;
++		gpios = <2 GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "sim_sel";
++	};
++
++	esim_sel_gpio0: esim-sel-gpio0 {
++		gpio-hog;
++		gpios = <0 GPIO_ACTIVE_HIGH>;
++		output-low;
++		line-name = "esim_sel0";
++	};
++
++	esim_sel_gpio3: esim-sel-gpio3 {
++		gpio-hog;
++		gpios = <3 GPIO_ACTIVE_HIGH>;
++		output-low;
++		line-name = "esim_sel3";
++	};
 +};
