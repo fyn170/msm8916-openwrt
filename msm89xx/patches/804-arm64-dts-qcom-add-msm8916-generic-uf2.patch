@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/arch/arm64/boot/dts/qcom/msm8916-generic-uf02.dts
-@@ -0,0 +1,77 @@
+@@ -0,0 +1,79 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
 +/dts-v1/;
@@ -19,6 +19,11 @@
 +	gpios = <&tlmm 23 GPIO_ACTIVE_LOW>;
 +};
 +
++&button_default {
++	pins = "gpio23";
++	bias-pull-up;
++};
++
 +&led_r {
 +	gpios = <&tlmm 72 GPIO_ACTIVE_HIGH>;
 +};
@@ -33,45 +38,44 @@
 +	gpios = <&tlmm 73 GPIO_ACTIVE_HIGH>;
 +};
 +
-+&button_default {
-+	pins = "gpio23";
-+	bias-pull-up;
-+};
-+
 +&gpio_leds_default {
 +	pins = "gpio71", "gpio72", "gpio73";
 +};
 +
++/*
++ * SIM/modem GPIOs derived from downstream Android DTS.
++ * Required to fix SIM detection on HMUF02-V05 / UF02 boards.
++ */
 +&tlmm {
-+	sim_hotplug_gpio: sim-hotplug-gpio {
++	sim_hotplug: sim-hotplug-gpio {
 +		gpio-hog;
 +		gpios = <114 GPIO_ACTIVE_HIGH>;
 +		input;
 +		line-name = "sim_hotplug";
 +	};
 +
-+	esim1_en_gpio: esim1-en-gpio {
++	esim1_en: esim1-en-gpio {
 +		gpio-hog;
 +		gpios = <119 GPIO_ACTIVE_HIGH>;
 +		output-high;
 +		line-name = "esim1_en";
 +	};
 +
-+	esim2_en_gpio: esim2-en-gpio {
++	esim2_en: esim2-en-gpio {
 +		gpio-hog;
 +		gpios = <14 GPIO_ACTIVE_HIGH>;
 +		output-low;
 +		line-name = "esim2_en";
 +	};
 +
-+	esim3_en_gpio: esim3-en-gpio {
++	esim3_en: esim3-en-gpio {
 +		gpio-hog;
 +		gpios = <12 GPIO_ACTIVE_HIGH>;
 +		output-low;
 +		line-name = "esim3_en";
 +	};
 +
-+	modem_en_gpio: modem-en-gpio {
++	modem_en: modem-en-gpio {
 +		gpio-hog;
 +		gpios = <68 GPIO_ACTIVE_HIGH>;
 +		output-high;
