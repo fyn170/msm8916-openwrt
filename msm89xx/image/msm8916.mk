@@ -17,12 +17,37 @@ define Build/generate-firmware
   $(TOPDIR)/target/linux/$(BOARD)/image/generate_firmware.sh $@
 endef
 
+define Build/copy-kernel-to-rootfs
+	mkdir -p $(TARGET_DIR)/boot
+
+	cp $(KDIR)/Image.gz $(TARGET_DIR)/boot/Image.gz
+
+	cp $(KDIR)/image-$(DEVICE_DTS).dtb \
+		$(TARGET_DIR)/boot/$(DEVICE_DTS).dtb
+
+	mkdir -p $(TARGET_DIR)/boot/extlinux
+
+	echo 'DEFAULT openwrt' > $(TARGET_DIR)/boot/extlinux/extlinux.conf
+	echo 'TIMEOUT 3' >> $(TARGET_DIR)/boot/extlinux/extlinux.conf
+	echo '' >> $(TARGET_DIR)/boot/extlinux/extlinux.conf
+	echo 'LABEL openwrt' >> $(TARGET_DIR)/boot/extlinux/extlinux.conf
+	echo '    KERNEL /boot/Image.gz' >> $(TARGET_DIR)/boot/extlinux/extlinux.conf
+	echo '    FDT /boot/$(DEVICE_DTS).dtb' >> $(TARGET_DIR)/boot/extlinux/extlinux.conf
+	echo '    APPEND console=ttyMSM0,115200 root=/dev/mmcblk0p25 rootfstype=squashfs rootwait' >> $(TARGET_DIR)/boot/extlinux/extlinux.conf
+endef
+
+
 define Device/msm8916
   SOC := msm8916
-  CMDLINE := "earlycon console=tty0 console=ttyMSM0,115200 root=/dev/mmcblk0p14 rootfstype=squashfs rootwait"
+
+  CMDLINE := "earlycon console=tty0 console=ttyMSM0,115200 root=/dev/mmcblk0p25 rootfstype=squashfs rootwait"
+
   FEATURES := squashfs
-  IMAGE/system.img := append-rootfs | append-metadata
+
+  IMAGE/system.img := copy-kernel-to-rootfs | append-rootfs | append-metadata
+
   ARTIFACTS := squashfs-gpt_both0.bin flash.sh firmware.zip
+
   ARTIFACT/squashfs-gpt_both0.bin := generate-squashfs-gpt
   ARTIFACT/flash.sh := install-flasher
   ARTIFACT/firmware.zip := generate-firmware

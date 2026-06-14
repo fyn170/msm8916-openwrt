@@ -21,10 +21,8 @@ echo "=== OpenWrt MSM8916 Fastboot Flash Script ==="
 echo
 
 echo "[*] Detecting OpenWrt images..."
-boot_path=$(find_image "." "*-squashfs-boot.img")     || exit 1
 rootfs_path=$(find_image "." "*-squashfs-system.img") || exit 1
 
-echo "[+] Boot:   $(basename "$boot_path")"
 echo "[+] Rootfs: $(basename "$rootfs_path")"
 
 echo
@@ -43,9 +41,6 @@ fi
 
 echo
 echo "=== Flashing partitions (fastboot) ==="
-
-# Boot image
-fastboot flash boot "$boot_path"
 
 # Rootfs partition name may be "rootfs" or "system" depending on the target.
 if fastboot getvar partition-type:rootfs 2>&1 | grep -q "partition-type"; then
