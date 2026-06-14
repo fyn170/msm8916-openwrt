@@ -6,11 +6,12 @@
 
 set -euo pipefail
 
-OUT_FILE="${1:-uz801v3-firmware.zip}"
+DEVICE_NAME="${DEVICE_NAME:-samsung-j500g}"
+OUT_FILE="${1:-${DEVICE_NAME}-firmware.zip}"
 
 # Respect OpenWrt-provided TMPDIR if present; otherwise create a private one and clean up on exit.
 CLEANUP_DIR=""
-if [ -z "$TMPDIR" ]; then
+if [ -z "${TMPDIR:-}" ]; then
   TMPDIR="$(mktemp -d)"
   CLEANUP_DIR="$TMPDIR"
 fi
@@ -22,7 +23,7 @@ mkdir -p "$BUILDDIR"
 
 # Detect OpenWrt toolchain (preferred) and fall back to host tools if necessary.
 # Populate AARCH64_* for qhypstub and ARM_CROSS for lk2nd.
-if [ -n "$STAGING_DIR" ]; then
+if [ -n "${STAGING_DIR:-}" ]; then
   # Try to locate OpenWrt AArch64 toolchain (musl or non-musl prefix)
   TOOLCHAIN_DIR="$(find "$STAGING_DIR/../toolchain-"* -maxdepth 0 -type d 2>/dev/null | head -1 || true)"
   if [ -n "$TOOLCHAIN_DIR" ] && [ -d "$TOOLCHAIN_DIR/bin" ]; then
@@ -66,9 +67,9 @@ if ! command -v "${ARM_CROSS}gcc" >/dev/null 2>&1; then
   echo "[!] Error: ${ARM_CROSS}gcc not found in PATH"
   exit 1
 fi
-echo "[+] Found aarch64 toolchain: $(command -v ${AARCH64_CC})"
-echo "[+] Found aarch64 assembler: $(command -v ${AARCH64_AS})"
-echo "[+] Found arm toolchain: $(command -v ${ARM_CROSS}gcc)"
+echo "[+] Found aarch64 toolchain: $(command -v "${AARCH64_CC}")"
+echo "[+] Found aarch64 assembler: $(command -v "${AARCH64_AS}")"
+echo "[+] Found arm toolchain: $(command -v "${ARM_CROSS}gcc")"
 
 # Clone sources (idempotent; reuse if already present to speed up rebuilds).
 for repo in qhypstub:qhypstub lk2nd:lk2nd qtestsign:qtestsign; do
@@ -108,8 +109,8 @@ if [ ! -f "$BUILDDIR/lk2nd/build-lk1st-msm8916/emmc_appsboot.mbn" ]; then
       echo 'DEFINES += USE_TARGET_HS200_CAPS=1' >> project/lk1st-msm8916.mk
     make clean || true
     make \
-      LK2ND_BUNDLE_DTB="msm8916-512mb-mtp.dtb" \
-      LK2ND_COMPATIBLE="yiming,uz801-v3" \
+      LK2ND_BUNDLE_DTB="${LK2ND_BUNDLE_DTB:-msm8916-samsung-j5.dtb}" \
+      LK2ND_COMPATIBLE="${LK2ND_COMPATIBLE:-samsung,j5lte}" \
       TOOLCHAIN_PREFIX="$ARM_CROSS" \
       lk1st-msm8916
   )

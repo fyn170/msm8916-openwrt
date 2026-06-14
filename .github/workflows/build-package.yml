@@ -2,6 +2,17 @@ name: Build Packages
 
 on:
   workflow_dispatch:
+    inputs:
+      device:
+        description: 'Target device (all = use default config)'
+        required: false
+        type: choice
+        default: j500g
+        options:
+          - all
+          - uz801
+          - uf02
+          - j500g
 
 env:
   TZ: Europe/Madrid
@@ -46,7 +57,7 @@ jobs:
       run: |
         echo "Using OpenWrt ${{ env.OPENWRT_VERSION }}"
         git clone https://git.openwrt.org/openwrt/openwrt.git openwrt
-        git -C openwrt checkout ${{ env.OPENWRT_VERSION }}
+        git -C openwrt checkout "${{ env.OPENWRT_VERSION }}"
 
     - name: Load msm89xx target and packages
       run: |
@@ -65,9 +76,27 @@ jobs:
     - name: Configure and download
       run: |
         cd openwrt
-        cp ../diffconfig_uz801 .config
+
+        DEVICE="${{ inputs.device }}"
+        case "$DEVICE" in
+          uz801|uf02|j500g)
+            DIFFCONFIG="../diffconfig_${DEVICE}"
+            ;;
+          all|"")
+            DIFFCONFIG="../diffconfig_j500g"
+            ;;
+          *)
+            DIFFCONFIG="../diffconfig_j500g"
+            ;;
+        esac
+
+        if [ -f "$DIFFCONFIG" ]; then
+          cp "$DIFFCONFIG" .config
+        fi
+
         echo "CONFIG_PACKAGE_tailscale=y" >> .config
         echo "CONFIG_PACKAGE_luci-app-tailscale=y" >> .config
+
         make defconfig
         make download -j8
         find dl -size -1024c -exec rm -f {} \; || true
@@ -75,15 +104,15 @@ jobs:
     - name: Build toolchain and dependencies
       run: |
         cd openwrt
-        make tools/install -j$(nproc)
-        make toolchain/install -j$(nproc)
-        make target/linux/compile -j$(nproc) V=s
+        make tools/install -j"$(nproc)"
+        make toolchain/install -j"$(nproc)"
+        make target/linux/compile -j"$(nproc)" V=s
 
     - name: Build packages
       run: |
         cd openwrt
         for pkg in $PACKAGES; do
-          make package/${pkg}/compile -j$(nproc) V=s
+          make "package/${pkg}/compile" -j"$(nproc)" V=s
         done
         echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 

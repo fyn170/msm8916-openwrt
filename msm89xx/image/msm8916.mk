@@ -50,4 +50,17 @@ define Device/generic-uf02
 endef
 TARGET_DEVICES += generic-uf02
 
+define Device/samsung-j500g
+  $(Device/msm8916)
+  DEVICE_VENDOR := Samsung
+  DEVICE_MODEL := Galaxy J5 2015 (J500G)
+  FILESYSTEMS := squashfs
+  DEVICE_DTS := msm8916-samsung-j5
+  SUPPORTED_DEVICES += samsung,j5lte
+  DEVICE_PACKAGES := wpad-basic-wolfssl rmtfs uci-usb-gadget \
+                     block-mount f2fs-tools \
+                     msm-firmware-dumper
+endef
+TARGET_DEVICES += samsung-j500g
+
 endif

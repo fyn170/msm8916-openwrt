@@ -2,7 +2,17 @@
 # /lib/preinit/79-format-rootfs-data
 # Automatically format rootfs_data partition if empty
 
-ROOTFS_DATA="/dev/mmcblk0p15"
+ROOTFS_DATA="/dev/disk/by-partlabel/rootfs_data"
+ROOTFS_DATA_FALLBACK="/dev/mmcblk0p15"
+
+resolve_rootfs_data() {
+	[ -b "$ROOTFS_DATA" ] && return 0
+	[ -b "$ROOTFS_DATA_FALLBACK" ] && {
+		ROOTFS_DATA="$ROOTFS_DATA_FALLBACK"
+		return 0
+	}
+	return 1
+}
 
 has_valid_ext4() {
 	# Check for ext4 magic number (0xEF53) at offset 0x438
@@ -12,15 +22,15 @@ has_valid_ext4() {
 }
 
 preinit_format_rootfs_data() {
-	[ -b "$ROOTFS_DATA" ] || return 0
-	
+	resolve_rootfs_data || return 0
+
 	if has_valid_ext4 "$ROOTFS_DATA"; then
 		echo "rootfs_data: valid ext4 filesystem detected" > /dev/kmsg
 		return 0
 	fi
-	
+
 	echo "rootfs_data: no valid filesystem, formatting..." > /dev/kmsg
-	
+
 	if mkfs.ext4 -F -L rootfs_data -O ^has_journal "$ROOTFS_DATA" >/dev/null 2>&1; then
 		echo "rootfs_data: format complete, rebooting..." > /dev/kmsg
 		sync

@@ -12,6 +12,7 @@ on:
           - all
           - uz801
           - uf02
+          - j500g
 
 env:
   UPLOAD_FIRMWARE: true
@@ -42,7 +43,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        device: ${{ fromJSON((inputs.device == 'all' || inputs.device == '') && '["uz801","uf02"]' || format('["{0}"]', inputs.device)) }}
+        device: ${{ fromJSON((inputs.device == 'all' || inputs.device == '') && '["uz801","uf02","j500g"]' || format('["{0}"]', inputs.device)) }}
 
     steps:
     - name: Checkout
@@ -64,7 +65,7 @@ jobs:
       run: |
         echo "Using OpenWrt ${{ needs.resolve-version.outputs.openwrt_version }}"
         git clone https://git.openwrt.org/openwrt/openwrt.git openwrt
-        git -C openwrt checkout ${{ needs.resolve-version.outputs.openwrt_version }}
+        git -C openwrt checkout "${{ needs.resolve-version.outputs.openwrt_version }}"
 
     - name: Load msm89xx target and packages
       run: |
@@ -84,7 +85,7 @@ jobs:
       run: |
         DEVICE="${{ matrix.device }}"
         DIFFCONFIG="diffconfig_${DEVICE}"
-        [ -f "$DIFFCONFIG" ] && mv "$DIFFCONFIG" openwrt/.config
+        [ -f "$DIFFCONFIG" ] && cp "$DIFFCONFIG" openwrt/.config || true
 
     - name: Download package
       id: package
@@ -99,7 +100,7 @@ jobs:
       run: |
         cd openwrt
         echo -e "$(nproc) thread compile"
-        make -j$(nproc) || make -j1 || make -j1 V=s
+        make -j"$(nproc)" || make -j1 || make -j1 V=s
         echo "status=success" >> $GITHUB_OUTPUT
         echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
@@ -116,7 +117,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: openwrt_firmware_${{ matrix.device }}_${{needs.resolve-version.outputs.openwrt_version}}_${{ env.FILE_DATE }}
+        name: openwrt_firmware_${{ matrix.device }}_${{ needs.resolve-version.outputs.openwrt_version }}_${{ env.FILE_DATE }}
         path: |
           ${{ env.FIRMWARE }}/openwrt-msm89xx-*-squashfs-gpt_both0.bin
           ${{ env.FIRMWARE }}/openwrt-msm89xx-*-squashfs-boot.img
