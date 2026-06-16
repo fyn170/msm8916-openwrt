@@ -109,7 +109,6 @@ if [ ! -f "$BUILDDIR/lk2nd/build-lk1st-msm8916/emmc_appsboot.mbn" ]; then
       echo 'DEFINES += USE_TARGET_HS200_CAPS=1' >> project/lk1st-msm8916.mk
     make clean || true
     make \
-      LK2ND_BUNDLE_DTB="${LK2ND_BUNDLE_DTB:-msm8916-samsung-j5.dtb}" \
       LK2ND_COMPATIBLE="${LK2ND_COMPATIBLE:-samsung,j5lte}" \
       TOOLCHAIN_PREFIX="$ARM_CROSS" \
       lk1st-msm8916
