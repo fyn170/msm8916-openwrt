@@ -18,24 +18,23 @@ define Build/generate-firmware
 endef
 
 define Build/copy-kernel-to-rootfs
-	mkdir -p $(TARGET_DIR)/boot
+	mkdir -p "$(TARGET_DIR)/boot"
 
-	cp $(KDIR)/Image.gz $(TARGET_DIR)/boot/Image.gz
-
-	cp $(KDIR)/image-$(DEVICE_DTS).dtb \
-		$(TARGET_DIR)/boot/$(DEVICE_DTS).dtb
-
-	mkdir -p $(TARGET_DIR)/boot/extlinux
-
-	echo 'DEFAULT openwrt' > $(TARGET_DIR)/boot/extlinux/extlinux.conf
-	echo 'TIMEOUT 3' >> $(TARGET_DIR)/boot/extlinux/extlinux.conf
-	echo '' >> $(TARGET_DIR)/boot/extlinux/extlinux.conf
-	echo 'LABEL openwrt' >> $(TARGET_DIR)/boot/extlinux/extlinux.conf
-	echo '    KERNEL /boot/Image.gz' >> $(TARGET_DIR)/boot/extlinux/extlinux.conf
-	echo '    FDT /boot/$(DEVICE_DTS).dtb' >> $(TARGET_DIR)/boot/extlinux/extlinux.conf
-	echo '    APPEND console=ttyMSM0,115200 root=/dev/mmcblk0p25 rootfstype=squashfs rootwait' >> $(TARGET_DIR)/boot/extlinux/extlinux.conf
+	KERNEL_BIN="$$(find "$(KDIR)" -maxdepth 1 -type f -name '*-kernel.bin' | head -n 1)"; \
+	[ -n "$$KERNEL_BIN" ] || { echo "Kernel image not found in $(KDIR)"; exit 1; }; \
+	cp "$$KERNEL_BIN" "$(TARGET_DIR)/boot/Image.gz"; \
+	cp "$(KDIR)/image-$(DEVICE_DTS).dtb" "$(TARGET_DIR)/boot/$(DEVICE_DTS).dtb"; \
+	mkdir -p "$(TARGET_DIR)/boot/extlinux"; \
+	{ \
+		echo 'DEFAULT openwrt'; \
+		echo 'TIMEOUT 3'; \
+		echo ''; \
+		echo 'LABEL openwrt'; \
+		echo '    KERNEL /boot/Image.gz'; \
+		echo '    FDT /boot/$(DEVICE_DTS).dtb'; \
+		echo '    APPEND console=ttyMSM0,115200 root=/dev/mmcblk0p25 rootfstype=squashfs rootwait'; \
+	} > "$(TARGET_DIR)/boot/extlinux/extlinux.conf"
 endef
-
 
 define Device/msm8916
   SOC := msm8916
